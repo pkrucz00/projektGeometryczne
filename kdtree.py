@@ -1,12 +1,9 @@
-from math import ceil
-
-
 class Range:
-    def __init__(self, x1, y1, x2, y2):
+    def __init__(self, x1, x2, y1, y2):
         assert x1 <= x2 and y1 <= y2, "Stary, wstawiłeś punkty na odwrót, weź co z tym zrób, brachu"
         self.x1 = x1
-        self.y1 = y1
         self.x2 = x2
+        self.y1 = y1
         self.y2 = y2
 
     def isContainedIn(self, other):
@@ -17,23 +14,25 @@ class Range:
         x, y = point
         return self.x1 <= x <= self.x2 and self.y1 <= y <= self.y2
 
-    def intersects(self, other):
-        pass
+    def intersects(self, other):  # self - nodeRange (open left and upper bound), other - searchRange (closed range)
+        return (self.x1 < other.x2 and other.x1 <= self.x2) and \
+               (self.y1 < other.y2 and other.y1 <= self.y2)
 
     def returnSplit(self, axis, side, line):
         result = Range(self.x1, self.x2, self.y1, self.y2)
         if axis == 0:  # x axis
             if side == "left":
-                result.x1 = line
-            elif side == "right":
                 result.x2 = line
+            elif side == "right":
+                result.x1 = line
         elif axis == 1:  # y axis
             if side == "left":
-                result.y1 = line
-            elif side == "right":
                 result.y2 = line
+            elif side == "right":
+                result.y1 = line
 
         assert result != self, "wyjściowy podział jest taki sam jak wejściowy"
+        assert result.x1 <= result.x2 and result.y1 <= result.y2, "Źle dokonany podział"
 
         return result
 
@@ -64,8 +63,7 @@ class KDTree:
             singleton = pointsXSorted[0]  # in this case same as pointsYSorted
             return LeafNode(singleton)
 
-        leftXSorted, rightXSorted, leftYSorted, rightYSorted = self.__split(pointsXSorted, pointsYSorted, axis)
-        splitLine = leftXSorted[-1][0] if axis == 0 else leftYSorted[-1][0]
+        leftXSorted, rightXSorted, leftYSorted, rightYSorted, splitLine = self.__split(pointsXSorted, pointsYSorted, axis)
         return Node(splitLine,
                     self.__initAux(leftXSorted, leftYSorted, depth + 1),
                     self.__initAux(rightXSorted, rightYSorted, depth + 1))
@@ -74,8 +72,8 @@ class KDTree:
         arrWithMedian = x_sorted if axis == 0 else y_sorted
         otherArr = y_sorted if axis == 0 else x_sorted
 
-        med_ind = ceil(len(arrWithMedian) / 2)
-        leftArr1, rightArr1 = arrWithMedian[:med_ind], arrWithMedian[med_ind:]
+        med_ind = (len(arrWithMedian)-1) // 2
+        leftArr1, rightArr1 = arrWithMedian[:med_ind+1], arrWithMedian[med_ind+1:]
         # TODO change name of the array for something more suitable
 
         splitPointCoordinate = leftArr1[-1][axis]
@@ -83,9 +81,9 @@ class KDTree:
         rightArr2 = list(filter(lambda x: x[axis] > splitPointCoordinate, otherArr))
 
         if axis == 0:  # TODO simplify
-            return leftArr1, rightArr1, leftArr2, rightArr2
+            return leftArr1, rightArr1, leftArr2, rightArr2, splitPointCoordinate
         else:
-            return leftArr2, rightArr2, leftArr1, rightArr2
+            return leftArr2, rightArr2, leftArr1, rightArr2, splitPointCoordinate
 
     def __findMaxRange(self, pointsXSorted, pointsYSorted):
         min_x, max_x = pointsXSorted[0][0], pointsXSorted[-1][0]
@@ -103,24 +101,28 @@ class KDTree:
         print(message + str(node.splitCoord))
         self.printTree(node.right, depth + 1)
 
-    def search(self, node, searchRange, nodeRange=self.maxRange, depth=0):
+    def search(self, searchRange, node=None, nodeRange=None, depth=0):
         if node.__class__ == LeafNode:
-            return [node.point]
+            return [node.point] if searchRange.isPointInRange(node.point) else []
+
+        if node is None:
+            node = self.kdTreeRoot
+            nodeRange = self.maxRange
 
         result = []
 
-        leftChildRange = nodeRange.returnSplit(depth % 2, "left", node.line)
-        rightChildRange = nodeRange.returnSplit(depth % 2, "right", node.line)
+        leftChildRange = nodeRange.returnSplit(depth % 2, "left", node.splitCoord)
+        rightChildRange = nodeRange.returnSplit(depth % 2, "right", node.splitCoord)
 
         if leftChildRange.isContainedIn(searchRange):
             result += self.__reportSubtree(node.left)
         elif leftChildRange.intersects(searchRange):
-            result += self.search(node.left, searchRange, leftChildRange)
+            result += self.search(searchRange, node.left, leftChildRange, depth+1)
 
         if rightChildRange.isContainedIn(searchRange):
             result += self.__reportSubtree(node.right)
         elif rightChildRange.intersects(searchRange):
-            result += self.search(node.right, searchRange, rightChildRange)
+            result += self.search(searchRange, node.right, rightChildRange, depth+1)
 
         return result
 
@@ -133,3 +135,5 @@ class KDTree:
 
 testTree = KDTree([(3, 1), (1, 2), (6, 0), (7, 5), (4, 3)])
 testTree.printTree(testTree.kdTreeRoot)
+searchingRange = Range(1, 7, 0, 5)
+print(testTree.search(searchingRange))

@@ -117,21 +117,25 @@ class KDTreeVis:
                     self.__initAux(rightXSorted, rightYSorted, depth + 1))
 
     def __split(self, x_sorted, y_sorted, axis):
-        arrWithMedian = x_sorted if axis == 0 else y_sorted
+        arrToSplit = x_sorted if axis == 0 else y_sorted
         otherArr = y_sorted if axis == 0 else x_sorted
 
-        med_ind = (len(arrWithMedian) - 1) // 2
-        leftArr1, rightArr1 = arrWithMedian[:med_ind + 1], arrWithMedian[med_ind + 1:]
-        # TODO change name of the array for something more suitable
+        otherAxis = (axis+1) % 2
 
-        splitPointCoordinate = leftArr1[-1][axis]
-        leftArr2 = list(filter(lambda x: x[axis] <= splitPointCoordinate, otherArr))
-        rightArr2 = list(filter(lambda x: x[axis] > splitPointCoordinate, otherArr))
+        result = [[None for _ in range(2)]  #left/right array
+                  for _ in range(2)]        #x/y arr
+        #leftXSorted - result[0][0], rightXSorted - result[0][1], leftYSorted - result[1][0], rightYSorted - result[1][1]
 
-        if axis == 0:  # TODO simplify
-            return leftArr1, rightArr1, leftArr2, rightArr2, splitPointCoordinate
-        else:
-            return leftArr2, rightArr2, leftArr1, rightArr2, splitPointCoordinate
+        med_ind = (len(arrToSplit) - 1) // 2
+
+        result[axis][0], result[axis][1] = arrToSplit[:med_ind + 1], arrToSplit[med_ind + 1:]
+
+        lastPoint = result[axis][0][-1]
+        splitPointCoordinate = lastPoint[axis]
+        result[otherAxis][0] = list(filter(lambda x: x[axis] <= splitPointCoordinate, otherArr))
+        result[otherAxis][1] = list(filter(lambda x: x[axis] > splitPointCoordinate, otherArr))
+
+        return result[0][0], result[0][1], result[1][0], result[1][1], splitPointCoordinate
 
     def __findMaxRange(self, pointsXSorted, pointsYSorted):
         min_x, max_x = pointsXSorted[0][0], pointsXSorted[-1][0]
@@ -155,8 +159,7 @@ class KDTreeVis:
 
         result = []
 
-        leftChildRange = nodeRange.returnSplit(depth % 2, "left", node.splitCoord)
-        rightChildRange = nodeRange.returnSplit(depth % 2, "right", node.splitCoord)
+        leftChildRange, rightChildRange = nodeRange.returnSplit(depth % 2, node.splitCoord)
 
         self.vis.makeScene(currRange=leftChildRange)
         if leftChildRange.isContainedIn(searchRange):
@@ -174,7 +177,7 @@ class KDTreeVis:
 
         return result
 
-    def __reportSubtree(self, node, visualizer):
+    def __reportSubtree(self, node):
         if node.__class__ == LeafNode:
             self.vis.addPoint(node.point)
             return [node.point]

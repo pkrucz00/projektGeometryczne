@@ -41,14 +41,12 @@ class Visualizer:
         self.reportedPoints.append(point)
 
     def _getRangeLines(self, rangeObj):
-        if rangeObj is not None:
-            p1 = (rangeObj.x1, rangeObj.y1)
-            p2 = (rangeObj.x1, rangeObj.y2)
-            p3 = (rangeObj.x2, rangeObj.y2)
-            p4 = (rangeObj.x2, rangeObj.y1)
-            return [(p1, p2), (p2, p3), (p3, p4), (p4, p1)]
-        else:
-            return []
+        p1 = (rangeObj.x1, rangeObj.y1)
+        p2 = (rangeObj.x1, rangeObj.y2)
+        p3 = (rangeObj.x2, rangeObj.y2)
+        p4 = (rangeObj.x2, rangeObj.y1)
+        return [(p1, p2), (p2, p3), (p3, p4), (p4, p1)]\
+            if rangeObj is not None else []
 
     def makeScene(self, currPoints=None, currRange=None):
         if currPoints is None:

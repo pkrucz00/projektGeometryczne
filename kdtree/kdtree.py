@@ -1,13 +1,15 @@
 from kdtree.kdtreeAuxClasses import *
 
+
 class KDTree:
     def __init__(self, points):
         pointsXSorted = sorted(points, key=lambda x: x[0])
         pointsYSorted = sorted(points, key=lambda x: x[1])
-        self.maxRange = self.__findMaxRange(pointsXSorted, pointsYSorted)
-        self.kdTreeRoot = self.__initAux(pointsXSorted, pointsYSorted, 0)
+        if len(points) > 0:
+            self.maxRange = self.__findMaxRange(pointsXSorted, pointsYSorted)
+            self.kdTreeRoot = self.__initAux(pointsXSorted, pointsYSorted)
 
-    def __initAux(self, pointsXSorted, pointsYSorted, depth):
+    def __initAux(self, pointsXSorted, pointsYSorted, depth=0):
         axis = depth % 2
 
         if len(pointsXSorted) == 1:
@@ -24,11 +26,12 @@ class KDTree:
         arrToSplit = x_sorted if axis == 0 else y_sorted
         otherArr = y_sorted if axis == 0 else x_sorted
 
-        otherAxis = (axis+1) % 2
+        otherAxis = (axis + 1) % 2
 
-        result = [[None for _ in range(2)]  #left/right array
-                  for _ in range(2)]        #x/y arr
-        #leftXSorted - result[0][0], rightXSorted - result[0][1], leftYSorted - result[1][0], rightYSorted - result[1][1]
+        # leftXSorted - result[0][0], rightXSorted - result[0][1],
+        # leftYSorted - result[1][0], rightYSorted - result[1][1]
+        result = [[None for _ in range(2)]  # left/right array
+                  for _ in range(2)]  # x/y arr
 
         med_ind = (len(arrToSplit) - 1) // 2
 

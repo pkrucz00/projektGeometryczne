@@ -1,13 +1,11 @@
-# Narzędzie jest oparte o kilka zewnętrznych bibliotek, które potrzebujemy najpierw zaimportować.
+#Narzędzie używane na zajęciach
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.collections as mcoll
-import matplotlib.colors as mcolors
 from matplotlib.widgets import Button
 import json as js
 
-# Parametr określający jak blisko (w odsetku całego widocznego zakresu) punktu początkowego
-# wielokąta musimy kliknąć, aby go zamknąć.
 TOLERANCE = 0.15
 
 
@@ -15,8 +13,6 @@ def dist(point1, point2):
     return np.sqrt(np.power(point1[0] - point2[0], 2) + np.power(point1[1] - point2[1], 2))
 
 
-# Klasa ta trzyma obecny stan wykresu oraz posiada metody, które mają zostać wykonane
-# po naciśnięciu przycisków.
 class _Button_callback(object):
     def __init__(self, scenes):
         self.i = 0
@@ -31,18 +27,17 @@ class _Button_callback(object):
     def set_axes(self, ax):
         self.ax = ax
 
-    # Metoda ta obsługuje logikę przejścia do następnej sceny.
+
     def next(self, event):
         self.i = (self.i + 1) % len(self.scenes)
         self.draw(autoscaling=True)
 
-    # Metoda ta obsługuje logikę powrotu do poprzedniej sceny.
+
     def prev(self, event):
         self.i = (self.i - 1) % len(self.scenes)
         self.draw(autoscaling=True)
 
-    # Metoda ta aktywuje funkcję rysowania punktów wyłączając równocześnie rysowanie
-    # odcinków i wielokątów.
+
     def add_point(self, event):
         self.adding_points = not self.adding_points
         self.new_line_point = None
@@ -51,8 +46,7 @@ class _Button_callback(object):
             self.adding_rects = False
             self.added_points.append(PointsCollection([]))
 
-    # Metoda ta aktywuje funkcję rysowania odcinków wyłączając równocześnie
-    # rysowanie punktów i wielokątów.
+
     def add_line(self, event):
         self.adding_lines = not self.adding_lines
         self.new_line_point = None
@@ -61,8 +55,7 @@ class _Button_callback(object):
             self.adding_rects = False
             self.added_lines.append(LinesCollection([]))
 
-    # Metoda ta aktywuje funkcję rysowania wielokątów wyłączając równocześnie
-    # rysowanie punktów i odcinków.
+
     def add_rect(self, event):
         self.adding_rects = not self.adding_rects
         self.new_line_point = None
@@ -75,12 +68,7 @@ class _Button_callback(object):
         self.added_rects.append(LinesCollection([]))
         self.rect_points = []
 
-    # Metoda odpowiedzialna za właściwą logikę rysowania nowych elementów. W
-    # zależności od włączonego trybu dodaje nowe punkty, początek, koniec odcinka
-    # lub poszczególne wierzchołki wielokąta. Istnieje ciekawa logika sprawdzania
-    # czy dany punkt jest domykający dla danego wielokąta. Polega ona na tym, że
-    # sprawdzamy czy odległość nowego punktu od początkowego jest większa od
-    # średniej długości zakresu pomnożonej razy parametr TOLERANCE.
+
     def on_click(self, event):
         if event.inaxes != self.ax:
             return
@@ -112,12 +100,7 @@ class _Button_callback(object):
                     self.rect_points.append(new_point)
                 self.draw(autoscaling=False)
 
-    # Metoda odpowiedzialna za narysowanie całego wykresu. Warto zauważyć,
-    # że zaczyna się ona od wyczyszczenia jego wcześniejszego stanu. Istnieje w
-    # niej nietrywialna logika zarządzania zakresem wykresu, tak żeby, w zależności
-    # od ustawionego parametru autoscaling, uniknąć sytuacji, kiedy dodawanie
-    # nowych punktów przy brzegu obecnie widzianego zakresu powoduje niekorzystne
-    # przeskalowanie.
+
     def draw(self, autoscaling=True):
         if not autoscaling:
             xlim = self.ax.get_xlim()
@@ -133,3 +116,112 @@ class _Button_callback(object):
             self.ax.set_xlim(xlim)
             self.ax.set_ylim(ylim)
         plt.draw()
+
+
+
+class Scene:
+    def __init__(self, points=[], lines=[]):
+        self.points = points
+        self.lines = lines
+
+
+class PointsCollection:
+    def __init__(self, points, **kwargs):
+        self.points = points
+        self.kwargs = kwargs
+
+    def add_points(self, points):
+        self.points = self.points + points
+
+
+class LinesCollection:
+    def __init__(self, lines, **kwargs):
+        self.lines = lines
+        self.kwargs = kwargs
+
+    def add(self, line):
+        self.lines.append(line)
+
+    def get_collection(self):
+        return mcoll.LineCollection(self.lines, **self.kwargs)
+
+
+class Plot:
+    def __init__(self, scenes=[Scene()], points=[], lines=[], json=None):
+        if json is None:
+            self.scenes = scenes
+            if points or lines:
+                self.scenes[0].points = points
+                self.scenes[0].lines = lines
+        else:
+            self.scenes = [Scene([PointsCollection(pointsCol) for pointsCol in scene["points"]],
+                                 [LinesCollection(linesCol) for linesCol in scene["lines"]])
+                           for scene in js.loads(json)]
+
+
+    def __configure_buttons(self):
+        plt.subplots_adjust(bottom=0.2)
+        ax_prev = plt.axes([0.6, 0.05, 0.15, 0.075])
+        ax_next = plt.axes([0.76, 0.05, 0.15, 0.075])
+        ax_add_point = plt.axes([0.44, 0.05, 0.15, 0.075])
+        ax_add_line = plt.axes([0.28, 0.05, 0.15, 0.075])
+        ax_add_rect = plt.axes([0.12, 0.05, 0.15, 0.075])
+        b_next = Button(ax_next, 'Następny')
+        b_next.on_clicked(self.callback.next)
+        b_prev = Button(ax_prev, 'Poprzedni')
+        b_prev.on_clicked(self.callback.prev)
+        b_add_point = Button(ax_add_point, 'Dodaj punkt')
+        b_add_point.on_clicked(self.callback.add_point)
+        b_add_line = Button(ax_add_line, 'Dodaj linię')
+        b_add_line.on_clicked(self.callback.add_line)
+        b_add_rect = Button(ax_add_rect, 'Dodaj figurę')
+        b_add_rect.on_clicked(self.callback.add_rect)
+        return [b_prev, b_next, b_add_point, b_add_line, b_add_rect]
+
+    def add_scene(self, scene):
+        self.scenes.append(scene)
+
+    def add_scenes(self, scenes):
+        self.scenes = self.scenes + scenes
+
+    def toJson(self):
+        return js.dumps([{"points": [np.array(pointCol.points).tolist() for pointCol in scene.points],
+                          "lines": [linesCol.lines for linesCol in scene.lines]}
+                         for scene in self.scenes])
+
+
+    def get_added_points(self):
+        if self.callback:
+            return self.callback.added_points
+        else:
+            return None
+
+    def get_added_lines(self):
+        if self.callback:
+            return self.callback.added_lines
+        else:
+            return None
+
+
+    def get_added_figure(self):
+        if self.callback:
+            return self.callback.added_rects
+        else:
+            return None
+
+    def get_added_elements(self):
+        if self.callback:
+            return Scene(self.callback.added_points, self.callback.added_lines + self.callback.added_rects)
+        else:
+            return None
+
+    def draw(self):
+        plt.close()
+        fig = plt.figure()
+        self.callback = _Button_callback(self.scenes)
+        self.widgets = self.__configure_buttons()
+        ax = plt.axes(autoscale_on=False)
+        self.callback.set_axes(ax)
+        fig.canvas.mpl_connect('button_press_event', self.callback.on_click)
+        plt.show()
+        self.callback.draw()

@@ -36,6 +36,9 @@ class Range:
 
         return result
 
+    def __str__(self):
+        return f"[{self.x1}, {self.x2}]x[{self.y1}, {self.y2}]"
+
 
 class LeafNode:
     def __init__(self, point):

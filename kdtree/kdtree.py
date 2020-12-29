@@ -35,7 +35,7 @@ class KDTree:
         if axis == 0:  # TODO simplify
             return leftArr1, rightArr1, leftArr2, rightArr2, splitPointCoordinate
         else:
-            return leftArr2, rightArr2, leftArr1, rightArr2, splitPointCoordinate
+            return leftArr2, rightArr2, leftArr1, rightArr1, splitPointCoordinate
 
     def __findMaxRange(self, pointsXSorted, pointsYSorted):
         min_x, max_x = pointsXSorted[0][0], pointsXSorted[-1][0]
@@ -86,10 +86,3 @@ class KDTree:
             return [node.point]
 
         return self.__reportSubtree(node.left) + self.__reportSubtree(node.right)
-
-
-points = [(3, 1), (1, 2), (6, 0), (7, 5), (4, 3)]
-testTree = KDTree(points)
-
-searchingRange = Range(2, 5, 0, 4)
-print(testTree.search(searchingRange))

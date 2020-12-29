@@ -1,6 +1,6 @@
-from AlgGeometryczne.jupyter.pyChJu.tool import *
-from AlgGeometryczne.project.QuadTree import *
-from AlgGeometryczne.project.testDataGenerator import *
+from quadtree.tool import *
+from quadtree.QuadTree import *
+from quadtree.testDataGenerator import *
 
 
 class QuadTreeVis:

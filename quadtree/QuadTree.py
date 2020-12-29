@@ -1,4 +1,4 @@
-from AlgGeometryczne.project.QuadTreeAuxClasses import *
+from quadtree.QuadTreeAuxClasses import *
 
 QUAD_0_EPSILON = 0.1
 

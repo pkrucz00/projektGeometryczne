@@ -92,4 +92,3 @@ class KDTree:
             return [node.point]
 
         return self.__reportSubtree(node.left) + self.__reportSubtree(node.right)
-

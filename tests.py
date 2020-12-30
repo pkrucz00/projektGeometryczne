@@ -1,5 +1,5 @@
-from kdtree.kdtree import *
-from quadtree.QuadTree import *
+from KOD.kdTree.kdtree import *
+from KOD.quadTree.QuadTree import *
 
 from random import uniform
 from math import sqrt

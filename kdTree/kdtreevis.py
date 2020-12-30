@@ -1,6 +1,5 @@
-from kdTree.tool import *
-from kdTree.kdtreeAuxClasses import *
-from kdTree.kdtree import KDTree
+from AuxFiles.tool import *
+from kdTree.kdtree import *
 
 
 class Visualizer:
@@ -124,6 +123,7 @@ class KDTreeVis(KDTree):
 
     def search(self, searchRange, node=None, nodeRange=None, depth=0):
         if node.__class__ == LeafNode:
+            self.vis.makeScene([node.point], nodeRange)
             if searchRange.isPointInRange(node.point):
                 self.vis.addPoint(node.point)
                 self.vis.makeScene([node.point], nodeRange)
@@ -141,19 +141,19 @@ class KDTreeVis(KDTree):
 
         leftChildRange, rightChildRange = nodeRange.returnSplit(depth % 2, node.splitCoord)
 
-        self.vis.makeScene(currRange=leftChildRange)
         if leftChildRange.isContainedIn(searchRange):
+            self.vis.makeScene(currRange=leftChildRange)
             result += self.__reportSubtree(node.left)
         elif leftChildRange.intersects(searchRange):
+            self.vis.makeScene(currRange=leftChildRange)
             result += self.search(searchRange, node.left, leftChildRange, depth + 1)
-        # self.vis.makeScene(currRange = leftChildRange)
 
-        self.vis.makeScene(currRange=rightChildRange)
         if rightChildRange.isContainedIn(searchRange):
+            self.vis.makeScene(currRange=rightChildRange)
             result += self.__reportSubtree(node.right)
         elif rightChildRange.intersects(searchRange):
+            self.vis.makeScene(currRange=rightChildRange)
             result += self.search(searchRange, node.right, rightChildRange, depth + 1)
-        # self.vis.makeScene(currRange = rightChildRange)
 
         return result
 

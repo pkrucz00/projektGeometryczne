@@ -53,4 +53,3 @@ class Node:
         self.splitCoord = splitCoord
         self.left = left
         self.right = right
-

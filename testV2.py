@@ -1,6 +1,6 @@
-from AlgGeometryczne.project.quadTree.QuadTree import *
-from AlgGeometryczne.project.kdTree.kdtree import *
-from AlgGeometryczne.project.testDataGenerator import TestDataGen
+from quadTree.QuadTree import *
+from kdTree.kdtree import *
+from AuxFiles.testDataGenerator import TestDataGen
 
 import time
 from math import sqrt
@@ -19,7 +19,8 @@ def specDataGenerator(n, treeConstructor, treeSearch, percentages, dataConstruct
         tree = treeConstructor(P)
         b = time.time_ns()/SCAL
         CONSTR_TIME += (b - a)
-        DEPTH += tree.getDepth()
+        if tree.__class__ == QuadTree:
+            DEPTH += tree.getDepth()
 
         testRanges = [rectangleConstructor(-SQR_LEN * sqrt(p), SQR_LEN * sqrt(p),
                                            -SQR_LEN * sqrt(p), SQR_LEN * sqrt(p))

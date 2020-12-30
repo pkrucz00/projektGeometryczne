@@ -1,5 +1,5 @@
-from KOD.kdTree.kdtree import *
-from KOD.quadTree.QuadTree import *
+from kdTree.kdtree import *
+from quadTree.QuadTree import *
 
 from random import uniform
 from math import sqrt
@@ -78,10 +78,8 @@ def testTable(numbersOfPoints, percentages, testRepeats):
         avgQuadtreeResults = averagedResults(quadtreeResults)
         printResults(avgKdtreeResults, avgQuadtreeResults, listOfTestPoints[0], percentages)
 
+if __name__ == '__main__':
+    numbersOfPoints = [100, 1000, 10000, 100000, 1000000]
+    percentages = [0.01, 0.1, 0.25, 0.5, 0.75, 1]
 
-numbersOfPoints = [
-    100, 1000,
-    10000, 100000, 1000000]
-percentages = [0.01, 0.1, 0.25, 0.5, 0.75, 1]
-
-testTable(numbersOfPoints, percentages, 5)
+    testTable(numbersOfPoints, percentages, 5)

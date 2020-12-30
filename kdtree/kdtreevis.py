@@ -1,5 +1,7 @@
 from graphicTool import *
 from kdtree.kdtreeAuxClasses import *
+from kdtree.kdtree import KDTree
+
 
 class Visualizer:
     def __init__(self, setOfPoints):
@@ -35,18 +37,22 @@ class Visualizer:
             y, x1, x2 = splitCoord, smallerBound, biggerBound
             line = ((x1, y), (x2, y))
 
+        assert line is not None, "Added line is None. Check function arguments"
         self.lines.append(line)
 
     def addPoint(self, point):
         self.reportedPoints.append(point)
 
     def _getRangeLines(self, rangeObj):
-        p1 = (rangeObj.x1, rangeObj.y1)
-        p2 = (rangeObj.x1, rangeObj.y2)
-        p3 = (rangeObj.x2, rangeObj.y2)
-        p4 = (rangeObj.x2, rangeObj.y1)
-        return [(p1, p2), (p2, p3), (p3, p4), (p4, p1)]\
-            if rangeObj is not None else []
+        result = []
+        if rangeObj is not None:
+            p1 = (rangeObj.x1, rangeObj.y1)
+            p2 = (rangeObj.x1, rangeObj.y2)
+            p3 = (rangeObj.x2, rangeObj.y2)
+            p4 = (rangeObj.x2, rangeObj.y1)
+            result = [(p1, p2), (p2, p3), (p3, p4), (p4, p1)]
+
+        return result
 
     def makeScene(self, currPoints=None, currRange=None):
         if currPoints is None:
@@ -82,63 +88,39 @@ class Visualizer:
         self.searchScenes = []
 
 
-class KDTreeVis:
+class KDTreeVis(KDTree):
     def __init__(self, points):
         pointsXSorted = sorted(points, key=lambda x: x[0])
         pointsYSorted = sorted(points, key=lambda x: x[1])
         self.vis = Visualizer(points)
+        if len(points) > 0:
+            self.maxRange = super()._findMaxRange(pointsXSorted, pointsYSorted)
+            self.vis.setMaxRange(self.maxRange)
+            self.vis.makeScene(pointsXSorted)
 
-        self.maxRange = self.__findMaxRange(pointsXSorted, pointsYSorted)
-        self.vis.setMaxRange(self.maxRange)
-        self.vis.makeScene(pointsXSorted)
-
-        self.kdTreeRoot = self.__initAux(pointsXSorted, pointsYSorted)
+            self.kdTreeRoot = self.__initAux(pointsXSorted, pointsYSorted)
 
     def __initAux(self, pointsXSorted, pointsYSorted, depth=0):
         axis = depth % 2
-
         otherAxis = (axis + 1) % 2
-        smallerBound = min(pointsXSorted, key=lambda x: x[otherAxis])[otherAxis]
-        biggerBound = max(pointsXSorted, key=lambda x: x[otherAxis])[otherAxis]
+
+        self.vis.makeScene(pointsXSorted)
 
         if len(pointsXSorted) == 1:  # only one point in list
             singleton = pointsXSorted[0]  # in this case pointsXSorted is the same as pointsYSorted
             return LeafNode(singleton)
 
-        leftXSorted, rightXSorted, leftYSorted, rightYSorted, splitLine = self.__split(pointsXSorted, pointsYSorted,
-                                                                                       axis)
+        leftXSorted, rightXSorted, leftYSorted, rightYSorted, splitLine = super()._split(pointsXSorted, pointsYSorted,
+                                                                                         axis)
+
+        smallerBound = min(pointsXSorted, key=lambda x: x[otherAxis])[otherAxis]
+        biggerBound = max(pointsXSorted, key=lambda x: x[otherAxis])[otherAxis]
         self.vis.addLine(splitLine, smallerBound, biggerBound, axis)
         self.vis.makeScene(pointsXSorted)
 
         return Node(splitLine,
                     self.__initAux(leftXSorted, leftYSorted, depth + 1),
                     self.__initAux(rightXSorted, rightYSorted, depth + 1))
-
-    def __split(self, x_sorted, y_sorted, axis):
-        arrToSplit = x_sorted if axis == 0 else y_sorted
-        otherArr = y_sorted if axis == 0 else x_sorted
-
-        otherAxis = (axis+1) % 2
-
-        result = [[None for _ in range(2)]  #left/right array
-                  for _ in range(2)]        #x/y arr
-        #leftXSorted - result[0][0], rightXSorted - result[0][1], leftYSorted - result[1][0], rightYSorted - result[1][1]
-
-        med_ind = (len(arrToSplit) - 1) // 2
-
-        result[axis][0], result[axis][1] = arrToSplit[:med_ind + 1], arrToSplit[med_ind + 1:]
-
-        lastPoint = result[axis][0][-1]
-        splitPointCoordinate = lastPoint[axis]
-        result[otherAxis][0] = list(filter(lambda x: x[axis] <= splitPointCoordinate, otherArr))
-        result[otherAxis][1] = list(filter(lambda x: x[axis] > splitPointCoordinate, otherArr))
-
-        return result[0][0], result[0][1], result[1][0], result[1][1], splitPointCoordinate
-
-    def __findMaxRange(self, pointsXSorted, pointsYSorted):
-        min_x, max_x = pointsXSorted[0][0], pointsXSorted[-1][0]
-        min_y, max_y = pointsYSorted[0][1], pointsYSorted[-1][1]
-        return Range(min_x, max_x, min_y, max_y)
 
     def search(self, searchRange, node=None, nodeRange=None, depth=0):
         if node.__class__ == LeafNode:

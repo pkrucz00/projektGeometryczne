@@ -6,7 +6,7 @@ class KDTree:
         pointsXSorted = sorted(points, key=lambda x: x[0])
         pointsYSorted = sorted(points, key=lambda x: x[1])
         if len(points) > 0:
-            self.maxRange = self.__findMaxRange(pointsXSorted, pointsYSorted)
+            self.maxRange = self._findMaxRange(pointsXSorted, pointsYSorted)
             self.kdTreeRoot = self.__initAux(pointsXSorted, pointsYSorted)
 
     def __initAux(self, pointsXSorted, pointsYSorted, depth=0):
@@ -16,13 +16,13 @@ class KDTree:
             singleton = pointsXSorted[0]  # in this case same as pointsYSorted
             return LeafNode(singleton)
 
-        leftXSorted, rightXSorted, leftYSorted, rightYSorted, splitLine = self.__split(pointsXSorted, pointsYSorted,
-                                                                                       axis)
+        leftXSorted, rightXSorted, leftYSorted, rightYSorted, splitLine = self._split(pointsXSorted, pointsYSorted,
+                                                                                      axis)
         return Node(splitLine,
                     self.__initAux(leftXSorted, leftYSorted, depth + 1),
                     self.__initAux(rightXSorted, rightYSorted, depth + 1))
 
-    def __split(self, x_sorted, y_sorted, axis):
+    def _split(self, x_sorted, y_sorted, axis):
         arrToSplit = x_sorted if axis == 0 else y_sorted
         otherArr = y_sorted if axis == 0 else x_sorted
 
@@ -44,7 +44,7 @@ class KDTree:
 
         return result[0][0], result[0][1], result[1][0], result[1][1], splitPointCoordinate
 
-    def __findMaxRange(self, pointsXSorted, pointsYSorted):
+    def _findMaxRange(self, pointsXSorted, pointsYSorted):
         min_x, max_x = pointsXSorted[0][0], pointsXSorted[-1][0]
         min_y, max_y = pointsYSorted[0][1], pointsYSorted[-1][1]
         return Range(min_x, max_x, min_y, max_y)
@@ -92,3 +92,4 @@ class KDTree:
             return [node.point]
 
         return self.__reportSubtree(node.left) + self.__reportSubtree(node.right)
+

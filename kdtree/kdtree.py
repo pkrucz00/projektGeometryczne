@@ -3,11 +3,13 @@ from kdtree.kdtreeAuxClasses import *
 
 class KDTree:
     def __init__(self, points):
+        if len(points) == 0:
+            raise ValueError("Number of poins can't be zero")
+
         pointsXSorted = sorted(points, key=lambda x: x[0])
         pointsYSorted = sorted(points, key=lambda x: x[1])
-        if len(points) > 0:
-            self.maxRange = self._findMaxRange(pointsXSorted, pointsYSorted)
-            self.kdTreeRoot = self.__initAux(pointsXSorted, pointsYSorted)
+        self.maxRange = self._findMaxRange(pointsXSorted, pointsYSorted)
+        self.kdTreeRoot = self.__initAux(pointsXSorted, pointsYSorted)
 
     def __initAux(self, pointsXSorted, pointsYSorted, depth=0):
         axis = depth % 2

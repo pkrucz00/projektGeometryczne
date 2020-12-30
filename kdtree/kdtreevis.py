@@ -90,15 +90,16 @@ class Visualizer:
 
 class KDTreeVis(KDTree):
     def __init__(self, points):
+        if len(points) == 0:
+            raise ValueError("Number of poins can't be zero")
         pointsXSorted = sorted(points, key=lambda x: x[0])
         pointsYSorted = sorted(points, key=lambda x: x[1])
         self.vis = Visualizer(points)
-        if len(points) > 0:
-            self.maxRange = super()._findMaxRange(pointsXSorted, pointsYSorted)
-            self.vis.setMaxRange(self.maxRange)
-            self.vis.makeScene(pointsXSorted)
+        self.maxRange = super()._findMaxRange(pointsXSorted, pointsYSorted)
+        self.vis.setMaxRange(self.maxRange)
+        self.vis.makeScene(pointsXSorted)
 
-            self.kdTreeRoot = self.__initAux(pointsXSorted, pointsYSorted)
+        self.kdTreeRoot = self.__initAux(pointsXSorted, pointsYSorted)
 
     def __initAux(self, pointsXSorted, pointsYSorted, depth=0):
         axis = depth % 2

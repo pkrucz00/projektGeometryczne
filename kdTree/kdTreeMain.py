@@ -17,7 +17,14 @@ if __name__ == '__main__':
     # P = dataGenerator.rectDiagonals() + dataGenerator.rectDiagonals()
     # P = dataGenerator.archimedeanSpiral() + dataGenerator.archimedeanSpiral(direct=-1)#
 
-    testKDTreeVis = KDTreeVis(P)
-    plot = testKDTreeVis.getInitPlot()
-    plot.draw()
+    kdTree = KDTree(P)
+    print(kdTree.getDepth())
 
+    testKDTreeVis = KDTreeVis(P)
+    # plotInit = testKDTreeVis.getInitPlot()
+    # plotInit.draw()
+
+    queryRange = Range(1, 6, 4, 6.7)
+    testKDTreeVis.search(queryRange)
+    plotSearch = testKDTreeVis.getSearchPlot()
+    plotSearch.draw()

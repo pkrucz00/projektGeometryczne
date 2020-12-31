@@ -29,6 +29,6 @@ if __name__ == '__main__':
     # plotInit = qtVis.getConstructionVis(withFinalSetOfLines=True)
     # plotInit.draw()
 
-    plotSearch = qtVis.getRangeQueryVis(queryRect, instantReportingAtInternalNode=False)
+    plotSearch = qtVis.getRangeQueryVis(queryRect, instantReportingAtInternalNode=True)
     plotSearch.draw()
 

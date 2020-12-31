@@ -6,7 +6,7 @@ class Visualizer:
     def __init__(self, setOfPoints):
         self.__colors = {"maxRange": "paleturquoise",
                          "currentRange": "red",
-                         "searchRange": "yellow",
+                         "searchRange": "gold",
                          "lines": "blue",
 
                          "reportedPoints": "fuchsia",
@@ -62,9 +62,10 @@ class Visualizer:
                   PointsCollection(currPoints[:], color=self.__colors["currentPoints"]),
                   PointsCollection(self.reportedPoints[:], color=self.__colors["reportedPoints"])]
         lines = [LinesCollection(self._getRangeLines(self.maxRange), color=self.__colors["maxRange"]),
-                 LinesCollection(self.lines[:], color=self.__colors["lines"]),
+                 LinesCollection(self.lines[:], color=self.__colors["lines"], alpha=1 if currRange is None else 0.3),
                  LinesCollection(self._getRangeLines(self.searchRange), color=self.__colors["searchRange"]),
                  LinesCollection(self._getRangeLines(currRange), color=self.__colors["currentRange"])]
+
 
         if currRange is None:
             self.initScenes.append(Scene(points, lines))

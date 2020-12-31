@@ -4,12 +4,13 @@ from kdTree.kdtree import *
 
 class Visualizer:
     def __init__(self, setOfPoints):
-        self.__colors = {"maxRange": "aquamarine",
+        self.__colors = {"maxRange": "paleturquoise",
                          "currentRange": "red",
                          "searchRange": "yellow",
                          "lines": "blue",
+
                          "reportedPoints": "fuchsia",
-                         "currentPoints": "yellow",
+                         "currentPoints": "orangered",
                          "normalPoints": "teal"}
         self.setOfPoints = setOfPoints
 
@@ -95,7 +96,6 @@ class KDTreeVis(KDTree):
         if len(points) > 0:
             self.maxRange = super()._findMaxRange(pointsXSorted, pointsYSorted)
             self.vis.setMaxRange(self.maxRange)
-            self.vis.makeScene(pointsXSorted)
 
             self.kdTreeRoot = self.__initAux(pointsXSorted, pointsYSorted)
 

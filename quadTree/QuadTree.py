@@ -88,10 +88,10 @@ class QTNode:
         if self.isLeaf:
             repPoints += self.points
         else:
-            self.SW.reportAll(repPoints)
-            self.SE.reportAll(repPoints)
-            self.NE.reportAll(repPoints)
-            self.NW.reportAll(repPoints)
+            self.SW.reportAllRec(repPoints)
+            self.SE.reportAllRec(repPoints)
+            self.NE.reportAllRec(repPoints)
+            self.NW.reportAllRec(repPoints)
 
     def instantReportAll(self):
         return self.points

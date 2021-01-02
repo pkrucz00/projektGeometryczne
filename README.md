@@ -17,4 +17,4 @@ Znajduje się w pliku `Quadtree i KD-Tree - prezentacja.pdf`
 
 `tests.py` i `testV2.py` - testy czasu wyszukiwania i konstrukcji 
 
-Pozostałe foldery to moduły z kodem programu
+Pozostałe foldery to moduły z kodem programu opisane w dokumentacji

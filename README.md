@@ -1,18 +1,18 @@
 ## **KD-Drzewa i Quadtree**
 
-###Projekt z algorytmów geometrycznych
+### Projekt z algorytmów geometrycznych
 #### Autorzy:
 Łukasz Dubiel
 
 Paweł Kruczkiewicz
 
-####Dokumentacja:
+#### Dokumentacja:
 Znajduje się w pliku `dokumentacja.pdf`
 
-####Prezentacja:
+#### Prezentacja:
 Znajduje się w pliku `Quadtree i KD-Tree - prezentacja.pdf`
 
-####Pozostałe:
+#### Pozostałe:
 `ProjectNotebook.ipynb` - notebook z wizualizacją
 
 `tests.py` i `testV2.py` - testy czasu wyszukiwania i konstrukcji 
